@@ -27,6 +27,7 @@ import (
 	"k8s.io/klog"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/davecgh/go-spew/spew"
 	mapierrors "github.com/openshift/machine-api-operator/pkg/controller/machine"
 
 	alibabacloudproviderv1 "github.com/AliyunContainerService/cluster-api-provider-alibabacloud/pkg/apis/alibabacloudprovider/v1beta1"
@@ -238,7 +239,7 @@ func runInstances(machine *machinev1.Machine, machineProviderConfig *alibabaclou
 			alibabacloudproviderv1.DefaultTenancy,
 			alibabacloudproviderv1.HostTenancy)
 	}
-
+	spew.Dump(runInstancesRequest)
 	runResponse, err := client.RunInstances(runInstancesRequest)
 	if err != nil {
 		metrics.RegisterFailedInstanceCreate(&metrics.MachineLabels{
@@ -370,8 +371,12 @@ func getSecurityGroupID(machine runtimeclient.ObjectKey, machineProviderConfig *
 	request.VpcId = machineProviderConfig.VpcID
 	request.RegionId = machineProviderConfig.RegionID
 	request.SecurityGroupId = machineProviderConfig.SecurityGroupID
+
+	// request.SecurityGroupType = "normal"
 	request.Scheme = "https"
 
+	spew.Dump(machineProviderConfig)
+	spew.Dump(request)
 	response, err := client.DescribeSecurityGroups(request)
 	if err != nil {
 		metrics.RegisterFailedInstanceCreate(&metrics.MachineLabels{
@@ -382,7 +387,7 @@ func getSecurityGroupID(machine runtimeclient.ObjectKey, machineProviderConfig *
 		klog.Errorf("error describing securitygroup: %v", err)
 		return "", fmt.Errorf("error describing securitygroup: %v", err)
 	}
-
+	spew.Dump(response)
 	if len(response.SecurityGroups.SecurityGroup) < 1 {
 		klog.Errorf("no securitygroup for given filters not found")
 		return "", fmt.Errorf("no securitygroup for given filters not found")

@@ -29,4 +29,10 @@ var InstanceTypes = map[string]*instanceType{
 		MemoryMb:     16384,
 		GPU:          0,
 	},
+        "ecs.g6.large": {
+		InstanceType: "ecs.g6.large",
+		VCPU:         2,
+		MemoryMb:     8192,
+		GPU:          0,
+	},
 }

@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1153
 	github.com/blang/semver v3.5.1+incompatible
+	github.com/davecgh/go-spew v1.1.1
 	github.com/go-logr/logr v0.4.0
 	github.com/golang/mock v1.6.0
 	github.com/onsi/gomega v1.10.5
