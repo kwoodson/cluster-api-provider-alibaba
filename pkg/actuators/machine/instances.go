@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/davecgh/go-spew/spew"
 
 	"k8s.io/klog"
 
@@ -400,7 +401,7 @@ func getSecurityGroupIDs(machine runtimeclient.ObjectKey, machineProviderConfig 
 					request.RegionId = machineProviderConfig.RegionID
 					request.Tag = buildDescribeSecurityGroupsTag(sg.Tags)
 					request.Scheme = "https"
-
+					spew.Dump(request)
 					response, err := client.DescribeSecurityGroups(request)
 					if err != nil {
 						metrics.RegisterFailedInstanceCreate(&metrics.MachineLabels{
@@ -454,16 +455,21 @@ func buildDescribeSecurityGroupsTag(tags []alibabacloudproviderv1.Tag) *[]ecs.De
 
 func getVSwitchID(machine runtimeclient.ObjectKey, machineProviderConfig *alibabacloudproviderv1.AlibabaCloudMachineProviderConfig, client alibabacloudClient.Client) (string, error) {
 	klog.Infof("validate vswitch in region %s", machineProviderConfig.RegionID)
+	spew.Dump(machineProviderConfig)
 	vSwitchID := ""
 	if machineProviderConfig.VSwitchID != "" {
 		vSwitchID = machineProviderConfig.VSwitchID
 	}
-
+	klog.Infof("checking machineproviderconfig.vswitch", machineProviderConfig.VSwitch)
 	if machineProviderConfig.VSwitch != nil {
+		klog.Infof("vswitch not nil")
 		if machineProviderConfig.VSwitch.ID != "" {
+			klog.Infof("vswitch.id=", machineProviderConfig.VSwitch.ID)
 			vSwitchID = machineProviderConfig.VSwitch.ID
 		} else {
+			klog.Infof("checking vswitch.tags=", machineProviderConfig.VSwitch.Tags)
 			if machineProviderConfig.VSwitch.Tags != nil {
+				klog.Info("Not nil, biulding request")
 				describeVSwitchesRequest := vpc.CreateDescribeVSwitchesRequest()
 				describeVSwitchesRequest.Scheme = "https"
 
@@ -472,7 +478,8 @@ func getVSwitchID(machine runtimeclient.ObjectKey, machineProviderConfig *alibab
 					describeVSwitchesRequest.VpcId = machineProviderConfig.VpcID
 				}
 				describeVSwitchesRequest.Tag = buildDescribeVSwitchesTag(machineProviderConfig.VSwitch.Tags)
-
+				klog.Infof("dumping request", describeVSwitchesRequest)
+				spew.Dump(describeVSwitchesRequest)
 				describeVSwitchesResponse, err := client.DescribeVSwitches(describeVSwitchesRequest)
 				if err != nil {
 					metrics.RegisterFailedInstanceCreate(&metrics.MachineLabels{
